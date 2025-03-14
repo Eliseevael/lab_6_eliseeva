@@ -1,0 +1,6 @@
+flask 
+flask-login 
+flask-migrate 
+flask-sqlalchemy 
+python-dotenv
+waitress

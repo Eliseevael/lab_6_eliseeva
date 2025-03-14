@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Отзывы о курсе {{ course.name }}{% endblock %}
+
+{% block content %}
+    <h1>Отзывы о курсе {{ course.name }}</h1>
+    <a href="{{ url_for('courses.show', course_id=course.id) }}">Назад к курсу</a>
+
+    <form action="{{ url_for('courses.reviews', course_id=course.id) }}" method="get">
+        <label for="sort_by">Сортировать по:</label>
+        <select name="sort_by" id="sort_by">
+            <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Новизне</option>
+            <option value="positive" {% if sort_by == 'positive' %}selected{% endif %}>Сначала положительные</option>
+            <option value="negative" {% if sort_by == 'negative' %}selected{% endif %}>Сначала отрицательные</option>
+        </select>
+        <button type="submit">Применить</button>
+    </form>
+
+    {% if reviews %}
+        <ul>
+            {% for review in reviews %}
+                <li>
+                    <strong>{{ review.user.full_name }}</strong> ({{ review.created_at.strftime('%Y-%m-%d %H:%M') }}):
+                    Оценка: {{ review.rating }} <br>
+                    {{ review.text }}
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% if pagination.has_prev %}
+            <a href="{{ url_for('courses.reviews', course_id=course.id, page=pagination.prev_num, sort_by=sort_by) }}">Предыдущая</a>
+        {% endif %}
+        {% if pagination.has_next %}
+            <a href="{{ url_for('courses.reviews', course_id=course.id, page=pagination.next_num, sort_by=sort_by) }}">Следующая</a>
+        {% endif %}
+    {% else %}
+        <p>Пока нет ни одного отзыва.</p>
+    {% endif %}
+
+    {% if current_user.is_authenticated %}
+        {% if user_review %}
+            <h2>Ваш отзыв:</h2>
+            <p>Оценка: {{ user_review.rating }}</p>
+            <p>{{ user_review.text }}</p>
+        {% else %}
+            <h2>Оставить отзыв</h2>
+            <form action="{{ url_for('courses.reviews', course_id=course.id, sort_by=sort_by) }}" method="post">
+                <label for="rating">Оценка:</label>
+                <select name="rating" id="rating">
+                    <option value="5">5 - Отлично</option>
+                    <option value="4">4 - Хорошо</option>
+                    <option value="3">3 - Удовлетворительно</option>
+                    <option value="2">2 - Неудовлетворительно</option>
+                    <option value="1">1 - Плохо</option>
+                    <option value="0">0 - Ужасно</option>
+                </select><br><br>
+                <label for="text">Текст отзыва:</label><br>
+                <textarea name="text" id="text" rows="4" cols="50"></textarea><br><br>
+                <button type="submit">Отправить</button>
+            </form>
+        {% endif %}
+    {% else %}
+        <p>Авторизуйтесь, чтобы оставить отзыв.</p>
+    {% endif %}
+{% endblock %}

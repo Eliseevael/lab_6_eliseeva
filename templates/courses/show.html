@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Курс {{ course.name }}{% endblock %}
+
+{% block content %}
+    <h1>{{ course.name }}</h1>
+    <p>Автор: {{ course.author.full_name }}</p>
+    <p>Категория: {{ course.category.name }}</p>
+    <p>{{ course.short_desc }}</p>
+    <p>{{ course.full_desc }}</p>
+    <a href="{{ url_for('courses.reviews', course_id=course.id) }}">Все отзывы</a>
+
+    <h2>Отзывы (последние 5)</h2>
+    {% if reviews %}
+        <ul>
+            {% for review in reviews %}
+                <li>
+                    <strong>{{ review.user.full_name }}</strong> ({{ review.created_at.strftime('%Y-%m-%d %H:%M') }}):
+                    Оценка: {{ review.rating }} <br>
+                    {{ review.text }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Пока нет ни одного отзыва.</p>
+    {% endif %}
+
+    {% if current_user.is_authenticated %}
+        {% if user_review %}
+            <h2>Ваш отзыв:</h2>
+            <p>Оценка: {{ user_review.rating }}</p>
+            <p>{{ user_review.text }}</p>
+        {% else %}
+            <h2>Оставить отзыв</h2>
+            <form action="{{ url_for('courses.show', course_id=course.id) }}" method="post">
+                <label for="rating">Оценка:</label>
+                <select name="rating" id="rating">
+                    <option value="5">5 - Отлично</option>
+                    <option value="4">4 - Хорошо</option>
+                    <option value="3">3 - Удовлетворительно</option>
+                    <option value="2">2 - Неудовлетворительно</option>
+                    <option value="1">1 - Плохо</option>
+                    <option value="0">0 - Ужасно</option>
+                </select><br><br>
+                <label for="text">Текст отзыва:</label><br>
+                <textarea name="text" id="text" rows="4" cols="50"></textarea><br><br>
+                <button type="submit">Отправить</button>
+            </form>
+        {% endif %}
+    {% else %}
+        <p>Авторизуйтесь, чтобы оставить отзыв.</p>
+    {% endif %}
+{% endblock %}
