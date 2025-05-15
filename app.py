@@ -40,3 +40,5 @@ def image(image_id):
                                app.config['UPLOAD_FOLDER'],
                                img.file_name
                             )
+if __name__ == '__main__':
+    app.run(debug=True)
