@@ -87,15 +87,13 @@ def show(course_id):
 
     if request.method == 'POST' and current_user.is_authenticated:
         try:
-            if not user_review: # only create a new review if one doesnt exist
-                review = Review(course_id=course_id, user_id=current_user.id, **review_params())
-                db.session.add(review)
+            review = Review(course_id=course_id, user_id=current_user.id, **review_params())
+            db.session.add(review)
+            course.rating_sum += int(review.rating)
+            course.rating_num += 1
+            db.session.commit()
+            flash('Спасибо за ваш отзыв!', 'success')
 
-                course.rating_sum += int(review.rating)
-                course.rating_num += 1
-                db.session.commit()
-            else:
-                flash('Вы уже оставили отзыв к этому курсу.', 'warning')
 
         except IntegrityError as err:
             flash(f'Возникла ошибка при записи данных в БД. Проверьте корректность введённых данных. ({err})', 'danger')
